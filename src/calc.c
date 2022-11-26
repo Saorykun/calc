@@ -175,16 +175,22 @@ double strtoconst(char *nptr, char **endptr)
 
 char normalise(char operator)
 {
-	switch (operator) {
-		case 'x':
-		case '*':
-			return '*';
-		case '\'':
-		case '^':
-			return '^';
-		default:
-			return operator;
-	}
+    switch (operator) {
+            case 'x':
+            case '*':
+                return '*';
+            case '\'':
+            case '^':
+                return '^';
+            case '+':
+                return operator;
+            case '-':
+                return operator;
+            case '/':
+                return operator;
+            default:	
+                exit(1);
+        }
 }
 
 double operation(char operator, double pre, double post)
@@ -288,6 +294,9 @@ int main(int argc, char *argv[])
 
 	/* Tokenise */
 	str = input.str;
+	if (!str) {
+        exit(1);
+	}
 	while (*str != '\0') {
 		strStart = str;
 		if (isspace(*str)) {
@@ -297,6 +306,13 @@ int main(int argc, char *argv[])
 			addScope(currentScope, &currentScope);
 			str++;
 		} else if (*str == ')') {
+			if (currentScope->parent == NULL || !currentScope->first){
+				exit(1);
+				
+			}
+			if (!strcmp (currentScope->first->type, OP)){
+				exit(1);
+			}
 			insertToken(currentScope, NUM, '\0', evaluateScope(currentScope, &currentScope));
 			str++;
 		} else if ((number = strtold(str, &str)) == 0.0L && (number = strtoconst(str, &str)) == 0.0L) {
